@@ -19,14 +19,14 @@ for k = 1:length(N_values)
     % 等距节点
     x_equidistant = generate_nodes(N, 'equidistant');
     y_equidistant = f(x_equidistant);
-    p_equidistant = @(xi) arrayfun(@(x) feval(@newton_interpolation, x_equidistant, y_equidistant, x), xi);
+    p_equidistant = @(xi) arrayfun(@(x) newton_interpolation(x_equidistant, y_equidistant, x), xi);
 
     errorsEqu = compute_error(f, p_equidistant, y);
     
     % 切比雪夫节点
     x_chebyshev = generate_nodes(N, 'chebyshev');
     y_chebyshev = f(x_chebyshev);
-    p_chebyshev = @(xi) arrayfun(@(x) feval(@newton_interpolation, x_chebyshev, y_chebyshev, x), xi);
+    p_chebyshev = @(xi) arrayfun(@(x) newton_interpolation(x_chebyshev, y_chebyshev, x), xi);
     errorsChe = compute_error(f, p_chebyshev, y);
     
     % 输出误差比较结果

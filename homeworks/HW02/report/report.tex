@@ -5,6 +5,9 @@
 \usepackage{amssymb}  % 额外数学符号支持
 \usepackage{listings}  % 用于插入代码
 \usepackage{xcolor}  % 代码高亮
+\usepackage{xcolor}    % 用于代码高亮
+\usepackage{geometry}  % 用于设置页边距
+\usepackage{subcaption}
 
 \lstset{ 
 	language=Matlab,                % 设置代码语言
@@ -21,59 +24,70 @@
 	framexleftmargin=0.3in,       % 设置框的左边距
 }
 
-\title{作业一~~拉格朗日插值法实验报告}
-\author{姓名: 刘行 \\ 学号: PB22000150}
+\title{作业二~~牛顿插值法实验报告}
+\author{姓名: 刘行~~学号: PB22000150}
 \date{\today}
 
 \begin{document}
 	\maketitle
 	\section{实验目的}
-		本实验通过拉格朗日插值法对函数 $f(x) = \frac{1}{1+x^2}$ 进行插值逼近, 并比较 \textbf{等距插值点} 与 \textbf{切比雪夫插值点} 的误差情况.
+		本实验通过牛顿插值法对函数 $f(x) = \frac{1}{1+25x^2}$ 进行插值逼近, 并比较 \textbf{等距插值点} 与 \textbf{切比雪夫插值点} 的误差情况.
 
 	\section{实验原理}
-		拉格朗日插值多项式的数学公式如下:
+		对于给定的 $N+1$ 个插值点 $(x_0, y_0), (x_1, y_1), \dots, (x_N, y_N)$, 插值多项式可以表示为:
 		\begin{equation}
-			p_L(x) = \sum_{i=0}^{N} y_i \ell_i(x),
+			P_N(x) = f[x_0] + f[x_0, x_1](x - x_0) + \dots + f[x_0, x_1, \dots, x_N](x - x_0)(x - x_1) \dots (x - x_{N-1}),
 		\end{equation}
-		其中拉格朗日基函数 $\ell_i(x)$ 定义为:
+		其中，$f[x_i, x_j, \dots, x_k]$ 是差商，定义为：
 		\begin{equation}
-			\ell_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{N} \frac{x - x_j}{x_i - x_j}.
+			f[x_i] = y_i, \quad f[x_i, x_{i+1}] = \frac{f[x_{i+1}] - f[x_i]}{x_{i+1} - x_i},
 		\end{equation}
-
-		本实验使用北太天元代码实现该插值过程, 并计算误差:
 		\begin{equation}
-			\max_{i} |f(y_i) - p_L(y_i)|,
+			f[x_i, x_{i+1}, \dots, x_k] = \frac{f[x_{i+1}, \dots, x_k] - f[x_i, \dots, x_{k-1}]}{x_k - x_i}.
 		\end{equation}
-		其中插值点选择如下:
-		\begin{enumerate}
-			\item \textbf{等距节点}: $x_i = 5 - 10i/N$, $i = 0,1,\dots,N$.
-			\item \textbf{切比雪夫节点}: $x_i = 5 \cos \left( \frac{(2i+1)\pi}{2N+2} \right)$, $i = 0,1,\dots,N$.
-		\end{enumerate}
+	
+	牛顿插值多项式具有递归性质，可以通过构造差商表高效地求解.
 
 	\section{代码实现}
 		程序主要分为以下几个部分:
 		\begin{enumerate}
 			\item 定义目标函数 $f(x)$;
-			\item 计算拉格朗日插值多项式;
+			\item 计算牛顿插值多项式;
 			\item 选择不同的插值节点;
 			\item 计算插值误差并输出.
 		\end{enumerate}
 
-		其中拉格朗日插值多项式由函数 \texttt{lagrange\_interpolation} 给出, 具体实现如下:
+		其中牛顿插值多项式由函数 \texttt{function p = newton\_interpolation(x\_nodes, y\_nodes, x\_eval)} 给出, 计算步骤如下:
+		\begin{enumerate}
+			\item 计算差商表, 存储在上三角矩阵的第一行中.
+			\item 递推计算插值多项式的值.
+		\end{enumerate} 具体实现如下:
+
 		\begin{lstlisting}[language=Matlab]
-lagrange_interpolation = @(x, y, xi) ...
-	sum(arrayfun(@(i) y(i+1) * ...
-	prod((xi - x([1:i, i+2:end])) ./ ...
-	(x(i+1) - x([1:i, i+2:end]))), 0:length(x)-1));
+function p = newton_interpolation(x_nodes, y_nodes, x_eval)
+	N = length(x_nodes);
+	divided_diff = y_nodes;
+	for j = 2:N
+		for i = N:-1:j
+			divided_diff(i) = (divided_diff(i) - divided_diff(i-1)) / (x_nodes(i) - x_nodes(i-j+1));
+		end
+	end
+	
+	p = divided_diff(N) * ones(size(x_eval));
+	for k = N-1:-1:1
+		p = divided_diff(k) + (x_eval - x_nodes(k)) .* p;
+	end
+end
 		\end{lstlisting}
 
-		在计算 $N = 10$ 的插值多项式之后将图像输出.
+		在计算 $N = 20$ 的插值多项式之后将图像输出.
 
 	\section{程序使用说明及实验结果}
 		本程序在北太天元软件中编写, 在北太天元界面中直接执行:
 		\begin{verbatim}
-			>> lagrange
+			>> newton
 		\end{verbatim}
+
 		输出结果:
 		\begin{verbatim}
 N=5
@@ -86,16 +100,27 @@ N=20
 Max Error of grid (1) : 58.2781251077
 Max Error of grid (2) : 0.0153250885
 N=40
-Max Error of grid (1) : 78689.0374853696
+Max Error of grid (1) : 78689.0374850642
 Max Error of grid (2) : 0.0002738598
 		\end{verbatim}
 
-		对应 $N = 10$ 的函数与插值多项式图像如下:
+		对应 $N = 20$ 的函数与插值多项式图像如下图\ref{fig:20}:
 		\begin{figure}[htbp]
 			\centering
-			\includegraphics[width=0.5\textwidth]{interpolation.png}
-			\caption{N=10 时的拉格朗日插值比较}
-			\label{fig:interpolation}
+			\begin{subfigure}{0.45\textwidth}
+				\centering
+				\includegraphics[width=\textwidth]{fig/center.png}
+				\caption{center}
+				\label{fig:center}
+			\end{subfigure}
+			\begin{subfigure}{0.45\textwidth}
+				\centering
+				\includegraphics[width=\textwidth]{fig/boundary.png}
+				\caption{boundary}
+				\label{fig:boundary}
+			\end{subfigure}
+			\caption{N = 20 图像}
+			\label{fig:20}
 		\end{figure}
 
 	\section{实验分析}
@@ -107,5 +132,5 @@ Max Error of grid (2) : 0.0002738598
 	\end{enumerate}
 
 	\section{结论}
-	本实验验证了拉格朗日插值法在不同插值节点下的误差变化情况。结果表明, \textbf{切比雪夫节点优于等距节点}, 能有效减少误差, 提高插值精度.
+	本实验验证了牛顿插值法在不同插值节点下的误差变化情况。结果表明, \textbf{切比雪夫节点优于等距节点}, 能有效减少误差, 提高插值精度.
 \end{document}
