@@ -1,0 +1,76 @@
+\documentclass[12pt]{article}
+\usepackage{ctex}
+\usepackage{graphicx}  % 用于插入图片
+\usepackage{amsmath}  % 数学公式支持
+\usepackage{amssymb}  % 额外数学符号支持
+\usepackage{listings}  % 用于插入代码
+\usepackage{xcolor}  % 代码高亮
+\usepackage{xcolor}    % 用于代码高亮
+\usepackage{geometry}  % 用于设置页边距
+\usepackage{subcaption}
+\usepackage{booktabs}
+
+\title{作业三~~样条插值法实验报告}
+\author{姓名: 刘行~~学号: PB22000150}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{实验背景}
+插值方法在数值分析和计算数学中具有重要作用, 常用于数值逼近和数据拟合. 本文研究了线性插值与三次样条插值的误差表现, 并通过实验分析其收敛性.
+
+\section{理论原理}
+
+\subsection{线性插值}
+线性插值是最简单的插值方法, 假设给定数据点 $(x_i, y_i)$ 和 $(x_{i+1}, y_{i+1})$, 在区间 $[x_i, x_{i+1}]$ 之间, 插值函数定义为:
+\begin{equation}
+S(x) = y_i + \frac{y_{i+1} - y_i}{x_{i+1} - x_i} (x - x_i).
+\end{equation}
+其误差阶为 $O(h^2)$.
+
+\subsection{三次样条插值}
+三次样条插值是一种分段三次多项式插值方法, 要求插值函数 $S(x)$ 及其一阶, 二阶导数在节点处连续.
+设插值函数为:
+\begin{equation}
+S_i(x) = a_i + b_i (x - x_i) + c_i (x - x_i)^2 + d_i (x - x_i)^3.
+\end{equation}
+通过构造合适的矩阵方程求解系数, 最终获得样条函数. 其理论误差阶为 $O(h^4)$.
+
+\section{代码实现}
+实验采用 MATLAB 进行编程, 主要步骤如下:
+\begin{enumerate}
+\item 设定不同划分数 $N$ 取值, 计算网格步长 $h$;
+\item 计算线性插值和三次样条插值的插值值;
+\item 计算误差并分析收敛性;
+\item 结果输出并进行可视化.
+\end{enumerate}
+
+\section{实验结果及分析}
+实验结果如下表所示:
+\begin{table}[h]
+\centering
+\begin{tabular}{ccccc}
+\toprule
+$N$ & 线性样条误差 & 收敛阶 & 三次样条误差 & 收敛阶 \
+\midrule
+5	& 1.2308e-02	& 0.0000	& 5.0136e-03	& 0.0000	\
+10	& 3.2328e-03	& 1.9288	& 1.2454e-03	& 2.0092	\
+20	& 8.2853e-04	& 1.9642	& 3.1103e-04	& 2.0015	\
+40	& 2.0973e-04	& 1.9820	& 7.7738e-05	& 2.0004	\
+\bottomrule
+\end{tabular}
+\caption{误差与收敛性实验结果}
+\label{tab:errors}
+\end{table}
+
+从实验结果可以看出:
+\begin{itemize}
+\item 线性插值的误差收敛阶接近 2, 符合理论分析结果 $O(h^2)$;
+\item 三次样条插值的误差收敛阶接近 2, 不符合理论分析结果 $O(h^4)$. 不过我进行了多次实验, 编写了不同代码, 结果都是这样.
+\end{itemize}
+
+\section{结论}
+本实验验证了线性插值和三次样条插值的误差收敛性. 线性插值具有二阶收敛, 而三次样条插值表现不符合理论预期, 但理论上三次样条插值在精度上优于线性插值, 适用于对精度要求较高的计算问题.
+
+\end{document}
