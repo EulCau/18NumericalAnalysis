@@ -70,24 +70,26 @@ def compute_error(nodes, method, *args):
 	return max(errors)
 
 
-_nodes = np.array([0, 5 / 3, 10 / 3, 5])
-# _nodes = np.linspace(0, 5, 10)
-_values = f(_nodes)
-_derivatives = -2 * _nodes / (1 + _nodes ** 2) ** 2  # 计算导数
+# _nodes = np.array([0, 5 / 3, 10 / 3, 5])
+node_num = np.array([4, 11, 21, 41, 1601, 3201])
+lin_err = np.zeros(node_num.size)
+cub_err = np.zeros(node_num.size)
+her_err = np.zeros(node_num.size)
 
-grid = np.linspace(0, 5, 100)
-errors = {
-	"Linear": compute_error(_nodes, linear_spline, _values),
-	"Cubic": compute_error(_nodes, natural_cubic_spline, _values),
-	"Hermite": compute_error(_nodes, hermite_spline, _values, _derivatives)
-}
+for i in range(node_num.size):
+	_nodes = np.linspace(0, 5, node_num[i])
+	_values = f(_nodes)
+	_derivatives = -2 * _nodes / (1 + _nodes ** 2) ** 2  # 计算导数
 
-plt.figure(figsize=(10, 6))
-plt.plot(grid, f(grid), label='Original Function')
-plt.plot(grid, [linear_spline(_nodes, _values, x) for x in grid], label='Linear Spline')
-plt.plot(grid, [natural_cubic_spline(_nodes, _values, x) for x in grid], label='Cubic Spline')
-plt.plot(grid, [hermite_spline(_nodes, _values, _derivatives, x) for x in grid], label='Hermite Spline')
-plt.legend()
-plt.show()
+	grid = np.linspace(0, 5, 100)
+	lin_err[i] = compute_error(_nodes, linear_spline, _values)
+	cub_err[i] = compute_error(_nodes, natural_cubic_spline, _values)
+	her_err[i] = compute_error(_nodes, hermite_spline, _values, _derivatives)
 
-print("Max Errors:", errors)
+lin_ord = np.log(lin_err[0:-2] / lin_err[1:-1]) / np.log(node_num[1:-1] / node_num[0:-2])
+cub_ord = np.log(cub_err[0:-2] / cub_err[1:-1]) / np.log(node_num[1:-1] / node_num[0:-2])
+her_ord = np.log(her_err[0:-2] / her_err[1:-1]) / np.log(node_num[1:-1] / node_num[0:-2])
+
+print(lin_ord)
+print(cub_ord)
+print(her_ord)
