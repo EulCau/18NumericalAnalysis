@@ -1,6 +1,6 @@
 function test(f, x, h, M)
     D = richardson_derivative(f, x, h, M);
-    fprintf('For f(x) = %s, x = %d, M = %d:\n', func2str(f), x, M);
+    fprintf('For f(x) = %s, x = %.2f, M = %d:\n', func2str(f), x, M);
     disp(D);
 end
 
