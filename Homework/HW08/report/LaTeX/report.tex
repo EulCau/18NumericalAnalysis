@@ -1,0 +1,78 @@
+\documentclass[12pt]{article}
+\usepackage{ctex}
+\usepackage{amsmath, amssymb, graphicx, float}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\title{HW08~~Romberg~积分实验报告}
+\author{PB22000150~刘行}
+\date{\today}
+
+\begin{document}
+\maketitle
+	\section{实验目的}
+		本实验旨在掌握 Romberg 积分方法的基本原理和实现技巧, 并通过对带有奇异点或无穷积分上限函数的积分近似计算, 理解其在实际中的适用性与局限性.
+
+	\section{实验原理}
+		Romberg 积分是一种基于复化梯形公式和 Richardson 外推的数值积分方法, 其核心思想是:
+
+		\begin{itemize}
+			\item 首先构造一系列复化梯形积分的近似值:
+			\begin{equation}
+				T_k = \frac{1}{2} T_{k-1} + h_k \sum_{i=1}^{2^{k-2}} f\left(a + (2i - 1) h_k\right)
+			\end{equation}
+			其中 $h_k = \frac{b-a}{2^{k-1}}$.
+			
+			\item 接着对这些近似值使用 Richardson 外推, 以提高精度:
+			\begin{equation}
+				R_{k,j} = R_{k,j-1} + \frac{R_{k,j-1} - R_{k-1,j-1}}{4^{j-1} - 1}
+			\end{equation}
+			
+			\item 最终构造出一个 Romberg 表格, 其右下角的值是最优近似.
+		\end{itemize}
+
+	\section{算法实现}
+		实验程序包括两个主要文件:
+
+	\subsection{romberg.m}
+		该函数实现了 Romberg 算法的核心逻辑:
+
+		\begin{enumerate}
+			\item 使用递推公式构建复化梯形积分 $R(k,1)$;
+			\item 对每一行, 逐步进行 Richardson 外推, 生成更高阶的近似值 $R(k,j)$;
+			\item 返回 Romberg 表格.
+		\end{enumerate}
+
+	\subsection{main.m}
+		该脚本用于函数选择和积分计算流程控制, 用户可选以下函数进行积分:
+
+		\begin{enumerate}
+			\item $f_{1}\left(x\right) = \frac{\sin x}{x}$, 定义在 $[0,1]$, 并对 $x=0$ 处取极限值 1;
+			\item $f_{2}\left(x\right) = \frac{\cos x - e^x}{\sin x}$, 定义在 $[-1,1]$, $x=0$ 处定义为 -1;
+			\item $\widetilde{f}_{3}(x) = \frac{e^{-1/x}}{x}$, 在 $(0,1]$ 上有定义, 对 $x=0$ 取极限值 0. 此函数为目标积分 $\int_{1}^{\infty}\left(t\text{e}^{t}\right)^{-1} \text{d}x$ 经过变量替换 $t = \frac{1}{x}$ 后的形式.
+		\end{enumerate}
+
+	\section{实验结果与分析}
+		我们以 $f_1(x) = \frac{\sin x}{x}$ 为例, 在区间 $[0,1]$ 上进行积分, 设定最大迭代次数为 5, 实验输出如下:
+
+\begin{verbatim}
+Romberg 表格 (前 5 行): 
+	0.9207354924 
+	0.9397932848	0.9461458823 
+	0.9445135217	0.9460869340	0.9460830041 
+	0.9456908636	0.9460833109	0.9460830694	0.9460830704 
+	0.9459850299	0.9460830854	0.9460830704	0.9460830704	0.9460830704
+\end{verbatim}
+
+		通过表格可见, 随着迭代次数增加, 结果逐渐收敛, 说明 Romberg 方法具有高阶收敛性. 使用完善的第三方积分工具检测可以发现, 该积分的真实值为 $\int_{0}^{1}\frac{\sin x}{x} \text{d}x \approx 0.9460830704$, 与 Romberg 方法的结果非常接近.
+
+		其余两个函数 $f_2$ 和 $f_3$ 的积分结果也类似, 在迭代 5 次时的结果分别为:
+		\begin{equation*}
+			\int_{-1}^{1}\frac{\cos x - e^x}{\sin x} \text{d}x \approx -2.2466, \quad \int_{1}^{\infty}\left(t\text{e}^{t}\right)^{-1} \text{d}x \approx 0.2194
+		\end{equation*}
+		同样, 这些结果与真实值相差不大. 对于这几个函数, 即使其在 $x=0$ 处有间断性, Romberg 方法仍然能够给出一个合理的近似值, 这是因为补齐间断点后, 函数依然是光滑的. 对于 $f_3$ 函数, Romberg 方法无法直接处理无穷积分, 在实际应用中, 可以对积分区间进行适当的变换.
+
+	\section{结论与展望}
+		Romberg 积分方法在处理一般光滑函数的数值积分中效果显著, 具有高阶收敛性. 然而, 遇到非光滑点、间断点或奇异点时, 仍需结合函数性质进行适当处理或采用其他积分方法 (如 Gauss 积分、变换积分区间等).
+
+\end{document}

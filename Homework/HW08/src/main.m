@@ -22,7 +22,7 @@ max_iter = input('输入计算的行数: ');
 R = romberg(f, a, b, max_iter);
 
 % 显示结果
-fprintf('\nRomberg 表格（前 %d 行）：\n', max_iter);
+fprintf('\nRomberg 表格 (前 %d 行): \n', max_iter);
 for i = 1:max_iter
     for j = 1:i
         fprintf('%15.10f ', R(i,j));
