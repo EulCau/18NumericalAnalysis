@@ -1,17 +1,18 @@
-function adams_bashforth5_test(f, x_ref)
+function adams_bashforth5_test(f, t0, x0, t_ref, x_ref)
     % 设置步数
     ks = 3:8;
     Ns = 2.^ks;
-    hs = 1 ./ Ns;
-    errors = zeros(size(Ns));
+    hs = (t_ref - t0) ./ Ns;
+    errors = zeros(size(ks));
 
     for j = 1:length(Ns)
         N = Ns(j);
         h = hs(j);
-        t = 0:h:1;
+        t = t0:h:t_ref;
 
         % 初始化解向量
         x = zeros(1, N+1);
+        x(1) = x0;
 
         % 用 RK4 初始化前 5 步
         for i = 1:4
