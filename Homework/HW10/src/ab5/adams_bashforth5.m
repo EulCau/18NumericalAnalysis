@@ -1,4 +1,4 @@
-function adams_bashforth5_test(f, t0, x0, t_ref, x_ref)
+function adams_bashforth5(f, t0, x0, t_ref, x_ref)
     % 设置步数
     ks = 3:8;
     Ns = 2.^ks;
@@ -41,12 +41,12 @@ function adams_bashforth5_test(f, t0, x0, t_ref, x_ref)
     orders = log2(errors(1:end-1) ./ errors(2:end));
 
     % 输出误差与收敛阶
-    fprintf('   N        error           order\n');
+    fprintf('   N           error    order\n');
     for j = 1:length(Ns)
         if j == 1
-            fprintf('%4d   %e\n', Ns(j), errors(j));
+            fprintf('%4d    %e\n', Ns(j), errors(j));
         else
-            fprintf('%4d   %e     %.2f\n', Ns(j), errors(j), orders(j-1));
+            fprintf('%4d    %e     %.2f\n', Ns(j), errors(j), orders(j-1));
         end
     end
 
