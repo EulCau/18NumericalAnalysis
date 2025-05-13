@@ -2,5 +2,6 @@ Tmp/
 build/
 bin/
 libs/
+course/
 .vscode
 .idea
